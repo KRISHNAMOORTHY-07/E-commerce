@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Harshika Rice Mandi</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8e1b25">
+<link rel="icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Rozha+One&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1f1a14;--sack:#c9a66b;--sackl:#f3e9d2;--green:#2f5d3a;--red:#8e1b25;--line:#dccfae;--bg:#fffdf8;--mute:#6b5f4a}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.55 Mukta,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+h1,h2,h3{font-family:'Rozha One',serif;font-weight:400;line-height:1.15;margin:0 0 .5rem}
+header{position:sticky;top:0;z-index:5;background:var(--red);color:#fff;display:flex;gap:.25rem;align-items:center;flex-wrap:wrap;padding:.5rem 1rem}
+header strong{font:1.35rem 'Rozha One',serif;margin-right:auto}
+header nav{display:flex;flex-wrap:wrap;gap:.25rem}
+header button{background:none;border:0;color:#fff;padding:.4rem .75rem;border-radius:6px;font:inherit;cursor:pointer}
+header button.on,header button:hover{background:rgba(255,255,255,.2)}
+main{max-width:1000px;margin:0 auto;padding:1rem}
+button,input,select{font:inherit}
+:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.btn{background:var(--green);color:#fff;border:0;border-radius:6px;padding:.5rem 1rem;cursor:pointer;font-weight:600}
+.btn.alt{background:#fff;color:var(--green);border:1.5px solid var(--green)}
+.btn.red{background:var(--red)}
+.btn.sm{padding:.25rem .6rem;font-size:.9rem}
+input,select{border:1.5px solid var(--line);border-radius:6px;padding:.5rem .6rem;background:#fff;width:100%}
+label{display:block;font-weight:600;font-size:.9rem;margin:.6rem 0 .2rem}
+.hero{display:grid;gap:1.5rem;padding:1rem 0}
+@media(min-width:800px){.hero{grid-template-columns:1fr 1.6fr;align-items:start}}
+.hero h1{font-size:clamp(2.2rem,6vw,3.4rem);color:var(--green)}
+.hero p{color:var(--mute);max-width:34ch}
+.board{list-style:none;margin:0;padding:.5rem 1rem;background:var(--sackl);border:2px solid var(--sack);border-radius:4px}
+.board li{display:flex;align-items:baseline;gap:.6rem;padding:.7rem 0;border-bottom:1px solid var(--line)}
+.board li:last-child{border:0}
+.board i{flex:1;border-bottom:2px dotted var(--sack);min-width:16px;transform:translateY(-4px)}
+.board b{text-align:right;font-size:1.2rem}
+.board .out{opacity:.55}
+small{display:block;color:var(--mute);font-size:.8rem;font-weight:400}
+.q{display:flex;align-items:center;gap:.4rem;margin-left:.4rem}
+.q button{width:2rem;height:2rem;border-radius:50%;border:1.5px solid var(--green);background:#fff;color:var(--green);font-size:1.1rem;cursor:pointer}
+.q output{min-width:1.5rem;text-align:center;font-weight:700}
+.card{border:1.5px solid var(--line);border-radius:6px;padding:.8rem 1rem;margin:.6rem 0;background:#fff}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.row>:first-child{margin-right:auto}
+.grid{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:.8rem 0}
+.stat{background:var(--sackl);border-radius:6px;padding:.7rem 1rem}
+.stat b{display:block;font:1.6rem 'Rozha One',serif}
+.stat.due b{color:var(--red)}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem 0 1rem}
+.tabs button{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:.3rem .9rem;cursor:pointer}
+.tabs button.on{background:var(--green);color:#fff;border-color:var(--green)}
+.chip{font-size:.8rem;padding:.1rem .6rem;border-radius:99px;background:var(--sackl)}
+.chip.new{background:#fde2e4;color:var(--red)}.chip.delivered{background:#dff0e2;color:var(--green)}
+table{width:100%;border-collapse:collapse}
+td,th{padding:.45rem .4rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+td.r,th.r{text-align:right}
+.scroll{overflow-x:auto}
+.due{color:var(--red);font-weight:700}
+.empty{color:var(--mute);padding:1rem 0}
+dialog{border:0;border-radius:8px;padding:1.2rem;width:min(92vw,380px);box-shadow:0 10px 40px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+#toast{position:fixed;left:50%;bottom:1rem;transform:translate(-50%,200%);background:var(--ink);color:#fff;padding:.6rem 1.1rem;border-radius:8px;transition:transform .2s;z-index:9}
+#toast.on{transform:translate(-50%,0)}
+.setup{background:var(--sackl);border:2px solid var(--sack);padding:1rem 1.2rem;border-radius:6px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><strong>Harshika Rice Mandi</strong><nav id="nav"></nav></header>
+<main id="app"></main>
+<dialog id="auth"></dialog>
+<div id="toast" role="status"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+import {firebaseConfig} from "./firebase-config.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,query,where,Timestamp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr=n=>'₹'+Math.round(Number(n)||0).toLocaleString('en-IN');
+const ms=l=>l?.d?.toMillis?.()||0;
+const byD=(a,b)=>ms(b)-ms(a);
+const dkey=t=>t.toDate().toLocaleDateString('en-CA');
+const today=()=>new Date().toLocaleDateString('en-CA');
+const toast=m=>{const t=$('#toast');t.textContent=m;t.className='on';clearTimeout(toast.t);toast.t=setTimeout(()=>t.className='',2800)};
+const ST={new:'New',packed:'Packed',out:'Out for delivery',delivered:'Delivered'};
+const HEADS=['Hamali (loading)','Transport and fuel','Godown rent','Electricity','Staff wages','Bags and packing','Mandi fee','Other'];
+const S={u:null,p:null,rates:[],shop:{},orders:[],cust:[],led:[],exp:[],cart:{},view:'shop',tab:'orders',date:today(),rs:[]};
+let deferred=null;
+
+if(firebaseConfig.apiKey.startsWith('YOUR')){
+  $('#app').innerHTML=`<div class="setup"><h2>One step left</h2><p>Open <b>public/firebase-config.js</b> and paste your Firebase web app config, then deploy. The README has the full steps.</p></div>`;
+  throw new Error('Firebase config missing');
+}
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const col=n=>collection(db,n);
+
+const sub=(q,fn,arr=S.rs)=>arr.push(onSnapshot(q,s=>{fn(s.docs.map(d=>({id:d.id,...d.data()})),s);draw()},e=>console.error(e)));
+sub(col('rates'),x=>S.rates=x.sort((a,b)=>a.name.localeCompare(b.name)),[]);
+onSnapshot(doc(db,'settings','shop'),s=>{S.shop=s.data()||{};draw()});
+
+const bal=id=>S.led.filter(l=>l.customerId==id).reduce((a,l)=>a+(l.type=='sale'?l.amount:-l.amount),0);
+const upi=amt=>`upi://pay?pa=${encodeURIComponent(S.shop.upi||'')}&pn=${encodeURIComponent('Harshika Rice Mandi')}${amt>0?'&am='+amt:''}&cu=INR`;
+const phone10=p=>{const d=String(p||'').replace(/\D/g,'');return d.length==10?'91'+d:d};
+const loginId=x=>/^\d{10}$/.test(x.trim())?x.trim()+'@phone.harshikarice.app':x.trim();
+
+async function boot(u){
+  S.rs.forEach(f=>f());S.rs=[];S.u=u;S.p=null;S.orders=[];S.led=[];S.cust=[];S.exp=[];
+  if(u){
+    S.p=(await getDoc(doc(db,'users',u.uid))).data()||null;
+    if(S.p?.role=='admin'){
+      sub(col('orders'),x=>S.orders=x);sub(col('customers'),x=>S.cust=x);
+      sub(col('ledger'),x=>S.led=x);sub(col('expenses'),x=>S.exp=x);
+    }else{
+      sub(query(col('orders'),where('uid','==',u.uid)),x=>S.orders=x);
+      sub(query(col('ledger'),where('customerId','==',u.uid)),x=>S.led=x);
+    }
+  }
+  if(!u||(S.view=='admin'&&S.p?.role!='admin'))S.view='shop';
+  draw();
+}
+onAuthStateChanged(auth,u=>{if(!boot.signing)boot(u)});
+
+/* ---------- views ---------- */
+function nav(){
+  const adm=S.p?.role=='admin';
+  const t=[['shop','Rates and order'],...(S.u&&!adm?[['khata','My khata']]:[]),...(adm?[['admin','Admin']]:[])];
+  $('#nav').innerHTML=t.map(([k,l])=>`<button data-a="nav" data-id="${k}" class="${S.view==k?'on':''}">${l}</button>`).join('')+
+   (deferred?'<button data-a="install">Install app</button>':'')+
+   (S.u?'<button data-a="logout">Log out</button>':'<button data-a="login">Log in</button>');
+}
+function draw(){
+  if(document.activeElement?.closest('#app')&&document.activeElement.matches('input,select'))return;
+  nav();
+  $('#app').innerHTML=({shop:vShop,khata:vKhata,admin:vAdmin})[S.view]();
+  document.querySelectorAll('[data-qr]').forEach(el=>new QRCode(el,{text:el.dataset.qr,width:150,height:150}));
+}
+const cartItems=()=>Object.entries(S.cart).filter(([,n])=>n>0).map(([id,n])=>{
+  const r=S.rates.find(x=>x.id==id);return r&&{n:r.name,bags:n,bagKg:r.bagKg,perKg:r.perKg,amt:n*r.bagKg*r.perKg}}).filter(Boolean);
+
+function vShop(){
+  const up=Math.max(0,...S.rates.map(r=>r.u?.toMillis?.()||0));
+  const items=cartItems(),tot=items.reduce((a,i)=>a+i.amt,0);
+  const row=r=>`<li class="${r.stock===false?'out':''}"><span>${esc(r.name)}<small>${r.bagKg} kg bag</small></span><i></i>
+    <b>${inr(r.perKg*r.bagKg)}<small>per bag, ${inr(r.perKg)}/kg</small></b>
+    ${r.stock===false?'<small>Out of stock</small>':`<span class="q"><button data-a="dec" data-id="${r.id}" aria-label="Fewer bags of ${esc(r.name)}">−</button><output>${S.cart[r.id]||0}</output><button data-a="inc" data-id="${r.id}" aria-label="More bags of ${esc(r.name)}">+</button></span>`}</li>`;
+  return `<section class="hero"><div><h1>Today's rice rates</h1>
+    <p>${up?'Updated '+new Date(up).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})+'. ':''}Bulk and retail rice, delivered to your door. Pick the number of bags.</p></div>
+    <ul class="board">${S.rates.map(row).join('')||'<li class="empty">Rates are not published yet. Please check back soon.</li>'}</ul></section>
+  ${items.length?`<section class="card"><h2>Your order</h2>
+    ${items.map(i=>`<div class="row"><span>${i.bags} × ${esc(i.n)} (${i.bagKg} kg)</span><b>${inr(i.amt)}</b></div>`).join('')}
+    <div class="row"><b>Total</b><b>${inr(tot)}</b></div>
+    <form data-f="order"><label>Name</label><input name="name" required value="${esc(S.p?.name)}">
+    <label>Mobile number</label><input name="phone" required inputmode="numeric" value="${esc(S.p?.phone)}">
+    <label>Delivery address</label><input name="address" required>
+    <label>Payment</label><select name="pay"><option value="upi">UPI on delivery</option><option value="cash">Cash on delivery</option><option value="khata">Add to my khata (approved customers)</option></select>
+    <p><button class="btn">Place order</button></p></form></section>`:''}`;
+}
+
+function vKhata(){
+  const b=bal(S.u.uid),rows=S.led.slice().sort(byD);
+  return `<h2>My khata</h2><div class="grid"><div class="stat ${b>0?'due':''}"><small>Pending amount</small><b>${inr(b)}</b></div></div>
+  ${b>0&&S.shop.upi?`<div class="card row"><div><b>Pay by UPI</b><small>Scan with any UPI app. Amount ${inr(b)}</small></div><div data-qr="${esc(upi(b))}"></div></div>`:''}
+  <h3>Orders</h3>${S.orders.slice().sort(byD).map(o=>`<div class="card row"><span>${o.items.map(i=>`${i.bags} × ${esc(i.n)}`).join(', ')}</span><span class="chip ${o.status}">${ST[o.status]}</span><b>${inr(o.total)}</b></div>`).join('')||'<p class="empty">No orders yet.</p>'}
+  <h3>Account history</h3><div class="scroll"><table>${rows.map(l=>`<tr><td>${l.d?.toDate().toLocaleDateString('en-IN')}</td><td>${esc(l.note)}</td><td class="r ${l.type=='sale'?'due':''}">${l.type=='sale'?'':'−'}${inr(l.amount)}</td></tr>`).join('')||'<tr><td class="empty">Nothing here yet.</td></tr>'}</table></div>`;
+}
+
+function vAdmin(){
+  if(S.p?.role!='admin')return '<p class="empty">Admin access only.</p>';
+  const T=[['orders','Orders'],['rates','Daily rates'],['khata','Customers and dues'],['exp','Daily report']];
+  return `<div class="tabs">${T.map(([k,l])=>`<button data-a="tab" data-id="${k}" class="${S.tab==k?'on':''}">${l}</button>`).join('')}</div>`+({orders:tOrders,rates:tRates,khata:tKhata,exp:tExp})[S.tab]();
+}
+function tOrders(){
+  return S.orders.slice().sort(byD).map(o=>`<article class="card"><div class="row"><b>${esc(o.name)}</b><span class="chip ${o.status}">${ST[o.status]}</span><b>${inr(o.total)}</b></div>
+   <p>${o.items.map(i=>`${i.bags} × ${esc(i.n)}`).join(', ')}<small>${esc(o.phone)} · ${esc(o.address)} · pays by ${esc(o.pay)}</small></p>
+   ${o.status!='delivered'?`<div class="row" style="justify-content:flex-start"><button class="btn alt sm" data-a="status" data-id="${o.id}" data-s="packed">Packed</button><button class="btn alt sm" data-a="status" data-id="${o.id}" data-s="out">Out for delivery</button><button class="btn sm" data-a="bill" data-id="${o.id}">Delivered, bill to khata</button></div>`:''}</article>`).join('')||'<p class="empty">No orders yet.</p>';
+}
+function tRates(){
+  return `<form data-f="shop" class="row"><div style="flex:1;min-width:200px"><label>Shop UPI ID (for QR codes)</label><input name="upi" value="${esc(S.shop.upi)}" placeholder="name@bank"></div><button class="btn">Save UPI ID</button></form>
+  <h3 style="margin-top:1.2rem">Add rice variety</h3>
+  <form data-f="addRate" class="row"><input name="name" placeholder="Name, e.g. Sona Masoori" required style="flex:2;min-width:160px"><input name="perKg" type="number" step="0.01" min="0" placeholder="₹ per kg" required style="flex:1;min-width:90px"><input name="bagKg" type="number" min="1" value="25" required style="flex:1;min-width:90px"><button class="btn">Add</button></form>
+  <small>Third box is bag size in kg. Change a price below and it saves instantly.</small>
+  <div class="scroll"><table><tr><th>Variety</th><th>₹/kg</th><th>Bag kg</th><th>In stock</th><th></th></tr>
+  ${S.rates.map(r=>`<tr><td>${esc(r.name)}</td><td><input data-rate="${r.id}" data-k="perKg" type="number" step="0.01" value="${r.perKg}" style="width:90px"></td><td><input data-rate="${r.id}" data-k="bagKg" type="number" value="${r.bagKg}" style="width:70px"></td><td><input type="checkbox" data-a="stock" data-id="${r.id}" ${r.stock===false?'':'checked'} style="width:auto" aria-label="In stock"></td><td><button class="btn red sm" data-a="delRate" data-id="${r.id}">Delete</button></td></tr>`).join('')}</table></div>`;
+}
+function tKhata(){
+  const list=S.cust.map(c=>({...c,b:bal(c.id)})).sort((a,b)=>b.b-a.b);
+  const pend=list.reduce((a,c)=>a+Math.max(0,c.b),0);
+  return `<div class="grid"><div class="stat due"><small>Total pending</small><b>${inr(pend)}</b></div><div class="stat"><small>Customers</small><b>${list.length}</b></div></div>
+  <form data-f="addCust" class="row"><input name="name" placeholder="Customer name" required style="flex:2;min-width:150px"><input name="phone" placeholder="Mobile" required inputmode="numeric" style="flex:1;min-width:120px"><select name="type" style="flex:1;min-width:120px"><option value="retail">Household</option><option value="shop">Shop</option><option value="hotel">Hotel / caterer</option><option value="dealer">Wholesale dealer</option></select><button class="btn">Add person</button></form>
+  <div class="scroll"><table><tr><th>Name</th><th class="r">Pending</th><th></th></tr>
+  ${list.map(c=>`<tr><td>${esc(c.name)}<small>${esc(c.phone)} · ${esc(c.type)}</small></td><td class="r ${c.b>0?'due':''}">${inr(c.b)}</td><td class="r"><button class="btn alt sm" data-a="pay" data-id="${c.id}">Payment</button> <button class="btn alt sm" data-a="sale" data-id="${c.id}">Sale</button> <button class="btn sm" data-a="remind" data-id="${c.id}">Remind</button> <button class="btn alt sm" data-a="inv" data-id="${c.id}">Invoice</button></td></tr>`).join('')||'<tr><td class="empty">Add your first customer above.</td></tr>'}</table></div>`;
+}
+function tExp(){
+  const D=S.date,on=l=>l.d&&dkey(l.d)==D,sum=a=>a.reduce((x,l)=>x+l.amount,0);
+  const billed=sum(S.led.filter(l=>l.type=='sale'&&on(l))),coll=sum(S.led.filter(l=>l.type=='payment'&&on(l)));
+  const ex=S.exp.filter(on).sort(byD),exT=sum(ex);
+  return `<div class="row" style="justify-content:flex-start"><label for="rd" style="margin:0">Date</label><input id="rd" type="date" value="${D}" style="width:auto"></div>
+  <div class="grid"><div class="stat"><small>Billed</small><b>${inr(billed)}</b></div><div class="stat"><small>Collected</small><b>${inr(coll)}</b></div><div class="stat"><small>Expenses</small><b>${inr(exT)}</b></div><div class="stat"><small>Net cash</small><b>${inr(coll-exT)}</b></div></div>
+  <form data-f="addExp" class="row"><select name="head" style="flex:1;min-width:150px">${HEADS.map(h=>`<option>${h}</option>`).join('')}</select><input name="amount" type="number" min="1" placeholder="₹ amount" required style="flex:1;min-width:100px"><input name="note" placeholder="Note" style="flex:2;min-width:120px"><button class="btn">Add expense</button></form>
+  <div class="scroll"><table>${ex.map(e=>`<tr><td>${esc(e.head)}<small>${esc(e.note)}</small></td><td class="r">${inr(e.amount)}</td><td class="r"><button class="btn red sm" data-a="delExp" data-id="${e.id}">Delete</button></td></tr>`).join('')||'<tr><td class="empty">No expenses on this date.</td></tr>'}</table></div>
+  <p><button class="btn alt" data-a="print">Print report</button></p>`;
+}
+
+/* ---------- actions ---------- */
+const askAmt=m=>{const v=parseFloat(prompt(m));return v>0?v:null};
+const ledger=(customerId,type,amount,note)=>addDoc(col('ledger'),{customerId,type,amount,note,d:Timestamp.now()});
+const acts={
+  nav:id=>{S.view=id;draw()},
+  tab:id=>{S.tab=id;draw()},
+  inc:id=>{S.cart[id]=(S.cart[id]||0)+1;draw()},
+  dec:id=>{S.cart[id]=Math.max(0,(S.cart[id]||0)-1);draw()},
+  login:()=>authDlg('login'),
+  logout:()=>signOut(auth),
+  install:async()=>{deferred.prompt();deferred=null;nav()},
+  status:(id,a)=>updateDoc(doc(db,'orders',id),{status:a.dataset.s}),
+  bill:async id=>{const o=S.orders.find(x=>x.id==id);if(o.billed||!confirm('Add '+inr(o.total)+' to '+o.name+"'s khata?"))return;
+    await ledger(o.uid,'sale',o.total,'Order '+id.slice(0,6));await updateDoc(doc(db,'orders',id),{status:'delivered',billed:true});toast('Billed to khata')},
+  stock:(id,a)=>updateDoc(doc(db,'rates',id),{stock:a.checked,u:Timestamp.now()}),
+  delRate:id=>confirm('Delete this variety?')&&deleteDoc(doc(db,'rates',id)),
+  delExp:id=>confirm('Delete this expense?')&&deleteDoc(doc(db,'expenses',id)),
+  pay:async id=>{const v=askAmt('Payment received (₹)');if(v){await ledger(id,'payment',v,'Payment received');toast('Payment recorded')}},
+  sale:async id=>{const v=askAmt('Sale amount (₹)');if(v){await ledger(id,'sale',v,prompt('What was sold?')||'Sale');toast('Sale added')}},
+  remind:id=>{const c=S.cust.find(x=>x.id==id),b=bal(id);if(b<=0)return toast('No pending amount');
+    const last=S.led.filter(l=>l.customerId==id&&l.type=='sale').sort(byD).slice(0,3).map(l=>`${l.d.toDate().toLocaleDateString('en-IN')}: ${l.note} ${inr(l.amount)}`).join('\n');
+    const msg=`Namaste ${c.name},\nThis is a reminder from Harshika Rice Mandi.\nYour pending amount is ${inr(b)}.\n${last?'Recent bills:\n'+last+'\n':''}${S.shop.upi?'Please pay by UPI: '+S.shop.upi+'\n':''}Thank you.`;
+    window.open('https://wa.me/'+phone10(c.phone)+'?text='+encodeURIComponent(msg),'_blank')},
+  inv:id=>invoice(id),
+  print:()=>print()
+};
+const forms={
+  order:async v=>{
+    if(!S.u){authDlg('login');return toast('Please log in to place your order')}
+    const items=cartItems(),total=items.reduce((a,i)=>a+i.amt,0);
+    await addDoc(col('orders'),{uid:S.u.uid,...v,items,total,status:'new',billed:false,d:Timestamp.now()});
+    S.cart={};S.view='khata';draw();toast('Order placed. We will call to confirm.')},
+  shop:async v=>{await setDoc(doc(db,'settings','shop'),{upi:v.upi.trim()},{merge:true});toast('UPI ID saved')},
+  addRate:async(v,f)=>{await addDoc(col('rates'),{name:v.name.trim(),perKg:+v.perKg,bagKg:+v.bagKg,stock:true,u:Timestamp.now()});f.reset()},
+  addCust:async(v,f)=>{await addDoc(col('customers'),{...v,name:v.name.trim()});f.reset();toast('Customer added')},
+  addExp:async(v,f)=>{await addDoc(col('expenses'),{head:v.head,amount:+v.amount,note:v.note,d:Timestamp.fromDate(new Date(S.date+'T'+new Date().toTimeString().slice(0,8)))});f.reset()},
+  auth:async v=>{
+    try{
+      if(v.mode=='signup'){
+        if(!/^\d{10}$/.test(v.id.trim()))return toast('Enter a 10 digit mobile number');
+        boot.signing=true;
+        const c=await createUserWithEmailAndPassword(auth,loginId(v.id),v.password);
+        await setDoc(doc(db,'users',c.user.uid),{name:v.name.trim(),phone:v.id.trim(),role:'customer'});
+        await setDoc(doc(db,'customers',c.user.uid),{name:v.name.trim(),phone:v.id.trim(),type:'retail'});
+        boot.signing=false;await boot(c.user);
+      }else await signInWithEmailAndPassword(auth,loginId(v.id),v.password);
+      $('#auth').close();
+    }catch(e){boot.signing=false;toast(e.code=='auth/invalid-credential'?'Wrong mobile number or password':e.code=='auth/email-already-in-use'?'This mobile number already has an account. Log in instead.':e.code=='auth/weak-password'?'Password needs at least 6 characters':e.message)}
+  }
+};
+function authDlg(mode){
+  const su=mode=='signup';
+  $('#auth').innerHTML=`<form data-f="auth" method="dialog"><h2>${su?'Create account':'Log in'}</h2><input type="hidden" name="mode" value="${mode}">
+   ${su?'<label>Your name</label><input name="name" required autocomplete="name">':''}
+   <label>${su?'Mobile number':'Mobile number or email'}</label><input name="id" required autocomplete="username" ${su?'inputmode="numeric" maxlength="10"':''}>
+   <label>Password</label><input name="password" type="password" required minlength="6" autocomplete="${su?'new':'current'}-password">
+   <p><button class="btn">${su?'Create account':'Log in'}</button> <button type="button" class="btn alt" data-a="close">Cancel</button></p>
+   <p><a href="#" data-a="mode" data-id="${su?'login':'signup'}">${su?'I already have an account':'New customer? Create an account'}</a></p></form>`;
+  if(!$('#auth').open)$('#auth').showModal();
+}
+acts.close=()=>$('#auth').close();
+acts.mode=id=>authDlg(id);
+
+function invoice(id){
+  const c=S.cust.find(x=>x.id==id);let run=0;
+  const rows=S.led.filter(l=>l.customerId==id).sort((a,b)=>ms(a)-ms(b)).map(l=>{run+=l.type=='sale'?l.amount:-l.amount;
+    return `<tr><td>${l.d.toDate().toLocaleDateString('en-IN')}</td><td>${esc(l.note)}</td><td align=right>${l.type=='sale'?inr(l.amount):''}</td><td align=right>${l.type=='payment'?inr(l.amount):''}</td><td align=right>${inr(run)}</td></tr>`}).join('');
+  let qr='';if(run>0&&S.shop.upi){const t=document.createElement('div');new QRCode(t,{text:upi(run),width:140,height:140});qr=`<img src="${t.querySelector('canvas').toDataURL()}" width=140><br>Scan to pay ${inr(run)}`}
+  const w=open('','_blank');
+  w.document.write(`<title>Statement ${esc(c.name)}</title><body style="font:15px system-ui;max-width:720px;margin:2rem auto"><h2>Harshika Rice Mandi</h2><p>Statement for <b>${esc(c.name)}</b> (${esc(c.phone)})<br>${new Date().toLocaleDateString('en-IN')}</p>
+   <table width=100% cellpadding=6 style="border-collapse:collapse" border=1><tr><th align=left>Date</th><th align=left>Details</th><th>Billed</th><th>Paid</th><th>Balance</th></tr>${rows}</table>
+   <h3>Pending: ${inr(run)}</h3>${qr}<p><button onclick="print()">Print</button></p></body>`);w.document.close();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',async e=>{
+  const a=e.target.closest('[data-a]');if(!a||a.type=='checkbox')return;
+  if(a.tagName=='A')e.preventDefault();
+  try{await acts[a.dataset.a]?.(a.dataset.id,a)}catch(err){toast(err.message)}
+});
+document.addEventListener('submit',async e=>{
+  const f=e.target;if(!f.dataset.f)return;e.preventDefault();
+  try{await forms[f.dataset.f](Object.fromEntries(new FormData(f)),f)}catch(err){toast(err.message)}
+});
+document.addEventListener('change',async e=>{
+  const t=e.target;
+  try{
+    if(t.dataset.rate)await updateDoc(doc(db,'rates',t.dataset.rate),{[t.dataset.k]:+t.value,u:Timestamp.now()});
+    else if(t.dataset.a=='stock')await acts.stock(t.dataset.id,t);
+    else if(t.id=='rd'){S.date=t.value||today();t.blur();draw()}
+  }catch(err){toast(err.message)}
+});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;nav()});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
